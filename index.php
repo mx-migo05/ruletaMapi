@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta de Mapeceta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blanco: #FEFEFE;
+            --azul-cielo: #96D3F9;
+            --azul-pastel: #ABCDF1;
+            --azul-muy-claro: #D5EAFD;
+            --lila-claro: #D8B7DC;
+            --lavanda-suave: #C1C1E6;
+        }
+
+        body {
+            background-image: url('img/fondo.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            
+            color: var(--blanco);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding-bottom: 50px;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            font-size: 1.1rem; /* Aumento general de fuente */
+        }
+
+        /* Animaciones de entrada */
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-80px); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes revealLeft {
+            from { opacity: 0; transform: translateX(-150px); filter: blur(10px); }
+            to { opacity: 1; transform: translateX(0); filter: blur(0); }
+        }
+        @keyframes revealRight {
+            from { opacity: 0; transform: translateX(150px); filter: blur(10px); }
+            to { opacity: 1; transform: translateX(0); filter: blur(0); }
+        }
+        @keyframes revealUp {
+            from { opacity: 0; transform: translateY(80px); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        /* Título con cambio de color constante y contorno negro */
+        .main-title {
+            text-align: center;
+            margin: 2.5rem 0;
+            animation: revealDown 1.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        }
+
+        .title-small {
+            font-size: 1.4rem; /* Aumentado */
+            font-weight: 300;
+            display: block;
+            color: var(--azul-muy-claro);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .title-large {
+            font-family: 'Fredoka One', cursive;
+            font-size: 5rem; /* Aumentado */
+            line-height: 1.1;
+            display: block;
+            -webkit-text-stroke: 2px #000000;
+            text-stroke: 2px #000000;
+            animation: colorShift 5s infinite linear;
+        }
+
+        @keyframes colorShift {
+            0% { color: var(--blanco); filter: drop-shadow(0 0 10px var(--azul-cielo)); }
+            25% { color: var(--azul-cielo); }
+            50% { color: var(--lila-claro); filter: drop-shadow(0 0 20px var(--lila-claro)); }
+            75% { color: var(--lavanda-suave); }
+            100% { color: var(--blanco); filter: drop-shadow(0 0 10px var(--azul-cielo)); }
+        }
+
+        /* Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            align-items: center;
+            justify-items: center;
+            gap: 30px;
+            width: 100%;
+            max-width: 1400px;
+            padding: 0 40px;
+        }
+
+        .section-left { opacity: 0; animation: revealLeft 1.5s cubic-bezier(0.19, 1, 0.22, 1) 1.2s forwards; }
+        .section-center { opacity: 0; animation: revealUp 1.5s cubic-bezier(0.19, 1, 0.22, 1) 2s forwards; }
+        .section-right { opacity: 0; animation: revealRight 1.5s cubic-bezier(0.19, 1, 0.22, 1) 2.8s forwards; }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 40px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            height: 600px; 
+        }
+
+        .magic-input {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            padding: 18px 22px; 
+            border-radius: 18px;
+            color: #1a1a1a;
+            width: 100%;
+            outline: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+
+        .btn-magic {
+            background: linear-gradient(135deg, var(--azul-cielo), var(--lila-claro));
+            color: var(--blanco);
+            padding: 16px; 
+            border-radius: 18px;
+            font-weight: 800;
+            font-size: 1.1rem; 
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            transition: 0.3s ease;
+        }
+        .btn-magic:hover { transform: translateY(-3px); filter: brightness(1.1); }
+
+        /* Lista de Opciones */
+        .options-list-container {
+            margin-top: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 5px;
+        }
+        .option-item {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            background: rgba(255, 255, 255, 0.85); 
+            padding: 14px 20px;
+            border-radius: 18px; 
+            margin-bottom: 10px;
+            gap: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .option-text {
+            color: #111111; 
+            font-weight: 700;
+            font-size: 1.1rem; 
+            word-break: break-all;
+            line-height: 1.2;
+            flex-grow: 1;
+        }
+        .delete-btn {
+            color: #ff6b6b;
+            font-weight: 900;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            cursor: pointer;
+            padding: 2px 5px;
+        }
+
+        /* Personaje */
+        .character-img {
+            width: 500px; height: auto;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4));
+            animation: floating 5s ease-in-out infinite;
+        }
+        @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+        .speech-bubble {
+            position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+            background: var(--blanco); color: #222; padding: 18px 35px;
+            border-radius: 25px; font-weight: 800; font-size: 1.1rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); z-index: 20;
+        }
+
+        /* Ruleta */
+        .roulette-wrapper {
+            position: relative; width: 480px; height: 480px; 
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%; border: 10px solid rgba(255,255,255,0.3);
+        }
+        .idle-spin { animation: slowRotation 60s linear infinite; }
+        @keyframes slowRotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        #canvas { width: 100%; height: 100%; border-radius: 50%; transition: transform 6s cubic-bezier(0.15, 0, 0.15, 1); }
+
+        .pointer {
+            position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 25px solid transparent;
+            border-right: 25px solid transparent; border-top: 60px solid #ff4757;
+            z-index: 30; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        /* Modal Ganador */
+        #winnerModal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px);
+            z-index: 100; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: var(--blanco); padding: 50px; border-radius: 50px;
+            text-align: center; max-width: 600px; width: 92%;
+            transform: scale(0.6); opacity: 0; transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 100px rgba(150, 211, 249, 0.3);
+        }
+        #winnerModal.active .modal-content { transform: scale(1); opacity: 1; }
+        #winnerResult { 
+            color: #111; 
+            font-weight: 900; 
+            font-size: clamp(1.0rem, 2vw, 2.5rem); 
+            margin: 1.5rem 0; 
+            text-transform: uppercase; 
+            line-height: 1.1;
+            word-wrap: break-word; 
+            padding: 0 10px;
+        }
+
+        .winner-image {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: var(--azul-muy-claro);
+            padding: 10px;
+            border: 5px solid var(--azul-cielo);
+        }
+
+        .particle { position: fixed; pointer-events: none; z-index: 101; border-radius: 50%; }
+
+        @media (max-width: 1150px) {
+            .main-layout { grid-template-columns: 1fr; gap: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-title">
+        <span class="title-small">Ruleta de</span>
+        <span class="title-large">MapiMeips</span>
+    </div>
+
+    <div class="main-layout">
+ 
+        <div class="section-center relative">
+            <div id="speechBubble" class="speech-bubble">A Jugar</div>
+            <img src="img/mapiInicio.png" id="charImg" alt="Mapi Character" class="character-img">
+        </div>
+
+        <div class="section-right roulette-wrapper">
+            <div class="pointer"></div>
+            <div style="position: absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:75px; height:75px; background:white; border-radius:50%; z-index:10; display:flex; align-items:center; justify-content:center; box-shadow:0 0 30px rgba(0,0,0,0.2); font-size: 2.2rem;">🌟</div>
+            <canvas id="canvas" class="idle-spin" width="600" height="600"></canvas>
+        </div>
+
+        <div class="section-left glass-card">
+            <h3 class="text-2xl font-bold mb-4 text-azul-muy-claro text-center uppercase tracking-widest">Ajustes</h3>
+            <input type="text" id="optionInput" placeholder="Escribe algo mágico..." class="magic-input">
+            <button onclick="addOption()" class="btn-magic mb-3">Añadir a la Ruleta</button>
+            <button onclick="spin()" class="btn-magic bg-gradient-to-r from-purple-500 to-pink-500">Girar Ahora</button>
+            <div id="countDisplay" class="text-center mt-4 text-lg font-semibold opacity-80">Opciones: 0</div>
+            <div class="options-list-container" id="optionsList"></div>
+        </div>
+    </div>
+
+    <!-- Modal Ganador -->
+    <div id="winnerModal">
+        <div class="modal-content">
+            <img src="img/ganador.png" alt="Ganador" class="winner-image animate-bounce">
+            <h2 class="text-2xl text-gray-500 font-bold uppercase tracking-widest">WUAZAAAA!! y Salio:</h2>
+            <p id="winnerResult"></p>
+            <button onclick="closeModal()" class="btn-magic py-5 text-2xl mt-6">¡Continuar!</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const speechBubble = document.getElementById('speechBubble');
+        const winnerModal = document.getElementById('winnerModal');
+        const winnerResult = document.getElementById('winnerResult');
+        const optionsList = document.getElementById('optionsList');
+        
+        let options = [];
+        let isSpinning = false;
+        const colors = ['#D8B7DC', '#ABCDF1', '#C1C1E6', '#96D3F9', '#D5EAFD', '#FFFFFF'];
+
+        function addOption() {
+            const input = document.getElementById('optionInput');
+            const val = input.value.trim();
+            if (val) {
+                options.push(val);
+                input.value = '';
+                updateUI();
+                talk("¡Genial! Añadido ✨");
+            }
+        }
+
+        function removeOption(index) {
+            if (isSpinning) return;
+            options.splice(index, 1);
+            updateUI();
+            talk("Eliminado 📝");
+        }
+
+        function talk(text) {
+            speechBubble.innerText = text;
+        }
+
+        function updateUI() {
+            document.getElementById('countDisplay').innerText = `Total de opciones: ${options.length}`;
+            drawRoulette();
+            optionsList.innerHTML = options.map((opt, i) => `
+                <div class="option-item">
+                    <span class="option-text">${opt}</span>
+                    <button onclick="removeOption(${i})" class="delete-btn">✕</button>
+                </div>
+            `).reverse().join('');
+        }
+
+        function drawRoulette() {
+            const num = options.length;
+            if (num === 0) { ctx.clearRect(0,0,600,600); return; }
+            const arc = Math.PI * 2 / num;
+            ctx.clearRect(0,0,600,600);
+            
+            options.forEach((opt, i) => {
+                const angle = i * arc;
+                
+                // Dibujar Porción
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.beginPath();
+                ctx.moveTo(300, 300);
+                ctx.arc(300, 300, 280, angle, angle + arc);
+                ctx.fill();
+                
+                // Texto Horizontal (Radial)
+                ctx.save();
+                ctx.fillStyle = '#111';
+                // Posicionamiento radial
+                ctx.translate(300 + Math.cos(angle + arc/2)*190, 300 + Math.sin(angle + arc/2)*190);
+                // Rotación para que sea horizontal relativa al radio
+                ctx.rotate(angle + arc/2 + Math.PI/2);
+                
+                ctx.font = '800 24px Outfit'; /* Aumentado */
+                ctx.textAlign = "center";
+                
+                const displayTxt = opt.length > 15 ? opt.substring(0, 13) + ".." : opt;
+                ctx.fillText(displayTxt, 0, 0); 
+                ctx.restore();
+            });
+        }
+
+        function spin() {
+            if (isSpinning || options.length < 2) {
+                talk("Agrega mas opciones..");
+                return;
+            }
+            isSpinning = true;
+            talk("¡A ver qué sale! 🌀");
+            
+            const currentRotation = getRotation(canvas);
+            canvas.classList.remove('idle-spin');
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+            
+            const totalRotation = 3600 + Math.random() * 360; 
+            const finalValue = currentRotation + totalRotation;
+
+            setTimeout(() => {
+                canvas.style.transform = `rotate(${finalValue}deg)`;
+            }, 50);
+
+            setTimeout(() => {
+                isSpinning = false;
+                const normalizedRotation = ((360 - (finalValue % 360) + 270) % 360);
+                const winnerIdx = Math.floor(normalizedRotation / (360 / options.length));
+                celebrate(options[winnerIdx]);
+            }, 6100);
+        }
+
+        function celebrate(name) {
+            winnerResult.innerText = name;
+            winnerModal.style.display = 'flex';
+            setTimeout(() => winnerModal.classList.add('active'), 10);
+            for(let i=0; i<100; i++) createParticle();
+            talk("¡Felicidades! 🎉");
+        }
+
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.background = colors[Math.floor(Math.random()*colors.length)];
+            const size = Math.random()*15+5;
+            p.style.width = size + 'px'; p.style.height = size + 'px';
+            p.style.left = '50%'; p.style.top = '50%';
+            document.body.appendChild(p);
+            
+            const angle = Math.random()*Math.PI*2;
+            const dist = Math.random()*800 + 200;
+            
+            p.animate([
+                { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }
+            ], { duration: 2500, easing: 'ease-out' }).onfinish = () => p.remove();
+        }
+
+        function closeModal() {
+            winnerModal.classList.remove('active');
+            setTimeout(() => {
+                winnerModal.style.display = 'none';
+                canvas.style.transition = 'none';
+                canvas.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    canvas.classList.add('idle-spin');
+                    canvas.style.transition = 'transform 6s cubic-bezier(0.15, 0, 0.15, 1)';
+                    talk("¿Hacemos otro giro? 🌀");
+                }, 50);
+            }, 600);
+        }
+
+        function getRotation(el) {
+            const st = window.getComputedStyle(el);
+            const tr = st.getPropertyValue("transform");
+            if (tr === 'none') return 0;
+            const values = tr.split('(')[1].split(')')[0].split(',');
+            return Math.round(Math.atan2(values[1], values[0]) * (180/Math.PI));
+        }
+
+        window.onload = () => drawRoulette();
+    </script>
+</body>
+</html>
